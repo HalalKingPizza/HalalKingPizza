@@ -1,21 +1,22 @@
 // src/pages/admin/AdminLogin.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithPassword } from "../../services/auth-service";
 import { useAuth } from "../../context/authContext";
 
 export default function AdminLogin() {
   const nav = useNavigate();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // If already logged in and admin, go dashboard
-  if (user && isAdmin) {
-    setTimeout(() => nav("/admin/dashboard"), 0);
-  }
+  useEffect(() => {
+    if (!loading && user && isAdmin) {
+      nav("/admin/dashboard", { replace: true });
+    }
+  }, [loading, user, isAdmin, nav]);
 
   async function onSubmit(e) {
     e.preventDefault();
