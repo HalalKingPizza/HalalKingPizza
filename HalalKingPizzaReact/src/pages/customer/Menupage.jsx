@@ -9,7 +9,7 @@ const CATEGORY_ORDER = [
   'Pizza by Pie Personal (10")',
   'Medium Pizza (14")',
   'Large Pizza (16")',
-  "Pizza By Slice",
+  'Pizza By Slice',
   "Halal King Combo Special",
   "Halal King and Gyro Special",
   "Dessert",
@@ -23,6 +23,25 @@ function cssSafeId(str) {
   return String(str).toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
 
+// ✅ Mobile detection
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(query).matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia(query);
+    const onChange = () => setMatches(mq.matches);
+    onChange();
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, [query]);
+
+  return matches;
+}
+
 export default function MenuPage() {
   const [items, setItems] = useState([]);
   const [query, setQuery] = useState("");
@@ -31,6 +50,9 @@ export default function MenuPage() {
 
   // modal
   const [selectedItem, setSelectedItem] = useState(null);
+
+  // ✅ Mobile UI (NO horizontal scrolling)
+  const isMobile = useMediaQuery("(max-width: 860px)");
 
   // scrollspy refs
   const sectionRefs = useRef({});
@@ -155,7 +177,8 @@ export default function MenuPage() {
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = null;
 
-        const offset = 120; // accounts for header spacing
+        // ✅ bigger offset on mobile because of sticky top bar
+        const offset = isMobile ? 210 : 120;
         const y = window.scrollY + offset;
 
         let current = list[0];
@@ -179,7 +202,6 @@ export default function MenuPage() {
     }
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    // run once after layout
     setTimeout(onScroll, 50);
 
     return () => {
@@ -187,52 +209,84 @@ export default function MenuPage() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoriesToRender.join("|"), activeCategory]);
+  }, [categoriesToRender.join("|"), activeCategory, isMobile]);
 
   const isSearching = query.trim().length > 0;
   const anyResults = categoriesToRender.length > 0;
 
   return (
     <div style={styles.page}>
-      {/* CSS for hover + modal */}
       <style>{css}</style>
 
-      <div style={styles.shell}>
-        {/* LEFT SIDEBAR */}
-        <aside style={styles.sidebar}>
-          <div style={styles.searchWrap}>
-            <div style={styles.searchRow}>
+      <div style={isMobile ? styles.shellMobile : styles.shell}>
+        {/* ✅ MOBILE TOP (NO horizontal scrolling) */}
+        {isMobile ? (
+          <div style={styles.mobileTopWrap}>
+            <div style={styles.mobileSearchRow}>
               <span style={styles.searchIcon}>⌕</span>
               <input
-                style={styles.searchInput}
+                style={styles.mobileSearchInput}
                 placeholder="Search menu"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
+
+            <div style={styles.mobileCategoryRow}>
+              <label style={styles.mobileCategoryLabel}>Category</label>
+              <select
+                className="mobileCategorySelect" // ✅ IMPORTANT: class for CSS fix
+                style={styles.mobileCategorySelect}
+                value={activeCategory}
+                onChange={(e) => scrollToCategory(e.target.value)}
+              >
+                {categoriesToRender.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+        ) : null}
 
-          <nav style={styles.nav}>
-            {categoriesToRender.map((cat) => {
-              const isActive = cat === activeCategory;
-              const count = grouped.get(cat)?.length ?? 0;
+        {/* LEFT SIDEBAR (DESKTOP ONLY) */}
+        {!isMobile ? (
+          <aside style={styles.sidebar}>
+            <div style={styles.searchWrap}>
+              <div style={styles.searchRow}>
+                <span style={styles.searchIcon}>⌕</span>
+                <input
+                  style={styles.searchInput}
+                  placeholder="Search menu"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+            </div>
 
-              return (
-                <button
-                  key={cat}
-                  onClick={() => scrollToCategory(cat)}
-                  className={`sideBtn ${isActive ? "sideBtnActive" : ""}`}
-                  style={styles.navItem}
-                >
-                  <span className="sideBtnRow">
-                    <span className="sideBtnLabel">{cat}</span>
-                    <span className="sideBtnCount">{count}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-        </aside>
+            <nav style={styles.nav}>
+              {categoriesToRender.map((cat) => {
+                const isActive = cat === activeCategory;
+                const count = grouped.get(cat)?.length ?? 0;
+
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => scrollToCategory(cat)}
+                    className={`sideBtn ${isActive ? "sideBtnActive" : ""}`}
+                    style={styles.navItem}
+                  >
+                    <span className="sideBtnRow">
+                      <span className="sideBtnLabel">{cat}</span>
+                      <span className="sideBtnCount">{count}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </nav>
+          </aside>
+        ) : null}
 
         {/* MAIN CONTENT */}
         <main style={styles.main}>
@@ -270,7 +324,7 @@ export default function MenuPage() {
               >
                 <h2 style={styles.sectionTitle}>{cat}</h2>
 
-                <div style={styles.grid}>
+                <div style={isMobile ? styles.gridMobile : styles.grid}>
                   {list.map((item) => (
                     <MenuCard
                       key={item.id}
@@ -314,7 +368,10 @@ export default function MenuPage() {
               <div className="modalInfo">
                 <div className="modalRow">
                   <div className="modalPrice">
-                    ${selectedItem.price != null ? Number(selectedItem.price).toFixed(2) : "0.00"}
+                    $
+                    {selectedItem.price != null
+                      ? Number(selectedItem.price).toFixed(2)
+                      : "0.00"}
                   </div>
 
                   <span
@@ -322,7 +379,9 @@ export default function MenuPage() {
                       selectedItem.is_available !== false ? "badgeOn" : "badgeOff"
                     }`}
                   >
-                    {selectedItem.is_available !== false ? "Available" : "Unavailable"}
+                    {selectedItem.is_available !== false
+                      ? "Available"
+                      : "Unavailable"}
                   </span>
                 </div>
 
@@ -354,9 +413,10 @@ function MenuCard({ item, onOpen }) {
       style={styles.card}
       aria-label={`Open ${item.food_name}`}
     >
-      <div style={styles.cardLeft}>
-        <div style={styles.thumbWrap}>
+      <div className="cardLeft" style={styles.cardLeft}>
+        <div className="thumbWrap" style={styles.thumbWrap}>
           <img
+            className="thumbImg"
             src={item.food_photos || fallbackImg}
             alt={item.food_name}
             style={styles.thumb}
@@ -367,15 +427,23 @@ function MenuCard({ item, onOpen }) {
         </div>
       </div>
 
-      <div style={styles.cardBody}>
+      <div className="cardBody" style={styles.cardBody}>
         <div style={styles.nameRow}>
-          <div style={styles.cardName}>{item.food_name}</div>
-          <div style={styles.cardPrice}>
+          <div className="cardName" style={styles.cardName}>
+            {item.food_name}
+          </div>
+          <div className="cardPrice" style={styles.cardPrice}>
             ${item.price != null ? Number(item.price).toFixed(2) : "0.00"}
           </div>
         </div>
 
-        {desc ? <div style={styles.cardDesc}>{desc}</div> : <div style={styles.cardDesc} />}
+        {desc ? (
+          <div className="cardDesc" style={styles.cardDesc}>
+            {desc}
+          </div>
+        ) : (
+          <div className="cardDesc" style={styles.cardDesc} />
+        )}
       </div>
     </button>
   );
@@ -389,6 +457,7 @@ const styles = {
     background: "#ffffff",
     color: "#111",
   },
+
   shell: {
     maxWidth: 1200,
     margin: "0 auto",
@@ -396,6 +465,63 @@ const styles = {
     display: "grid",
     gridTemplateColumns: "280px 1fr",
     gap: 28,
+  },
+
+  shellMobile: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: "12px 14px 22px",
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: 14,
+  },
+
+  /* ✅ Mobile sticky top */
+  mobileTopWrap: {
+    position: "sticky",
+    top: 0,
+    zIndex: 50,
+    background: "#fff",
+    borderBottom: "1px solid #eee",
+    padding: "10px 0 12px",
+  },
+
+  mobileSearchRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    border: "1px solid #ddd",
+    borderRadius: 12,
+    padding: "10px 12px",
+    background: "#fff",
+  },
+  mobileSearchInput: {
+    border: "none",
+    outline: "none",
+    width: "100%",
+    fontSize: 14,
+  },
+
+  mobileCategoryRow: {
+    marginTop: 10,
+    display: "grid",
+    gridTemplateColumns: "90px 1fr",
+    alignItems: "center",
+    gap: 10,
+  },
+  mobileCategoryLabel: {
+    fontSize: 13,
+    color: "#444",
+    fontWeight: 800,
+  },
+  mobileCategorySelect: {
+    width: "100%",
+    border: "1px solid #ddd",
+    borderRadius: 12,
+    padding: "10px 12px",
+    fontSize: 14,
+    background: "#fff",
+    outline: "none",
   },
 
   sidebar: {
@@ -442,7 +568,7 @@ const styles = {
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "space-between",
-    marginBottom: 18,
+    marginBottom: 14,
   },
   title: { fontSize: 22, margin: 0, fontWeight: 800 },
   subline: {
@@ -468,16 +594,20 @@ const styles = {
     background: "#fafafa",
   },
 
-  section: { marginTop: 22 },
-  sectionTitle: { margin: "0 0 12px 0", fontSize: 18, fontWeight: 800 },
+  section: { marginTop: 18 },
+  sectionTitle: { margin: "0 0 10px 0", fontSize: 17, fontWeight: 800 },
 
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
     gap: 14,
   },
+  gridMobile: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: 10,
+  },
 
-  // card uses button (so hover works + click)
   card: {
     border: "1px solid #eee",
     borderRadius: 14,
@@ -490,6 +620,9 @@ const styles = {
     textAlign: "left",
     width: "100%",
   },
+
+  cardLeft: {},
+
   thumbWrap: {
     position: "relative",
     width: 120,
@@ -587,6 +720,51 @@ const css = `
     border-color: #e6e6e6;
   }
 
+  /* ✅ MOBILE: make cards SMALL and fit the screen (NO horizontal scroll) */
+  @media (max-width: 860px){
+    .menuCard{
+      padding: 10px !important;
+      border-radius: 12px !important;
+      display: grid !important;
+      grid-template-columns: 74px 1fr !important;
+      gap: 10px !important;
+      width: 100% !important;
+      transform: none !important;
+    }
+
+    .menuCard:hover{
+      transform: none !important;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+    }
+
+    .menuCard .thumbWrap{
+      width: 74px !important;
+      height: 74px !important;
+      border-radius: 12px !important;
+    }
+
+    .menuCard .tinyBadge{
+      left: 7px;
+      bottom: 7px;
+      height: 18px;
+      padding: 0 8px;
+      font-size: 10px;
+    }
+
+    .menuCard .cardName{
+      font-size: 13px !important;
+    }
+    .menuCard .cardPrice{
+      font-size: 13px !important;
+    }
+    .menuCard .cardDesc{
+      margin-top: 6px !important;
+      font-size: 13px !important;
+      line-height: 18px !important;
+      -webkit-line-clamp: 2;
+    }
+  }
+
   /* Small badge on thumbnail */
   .tinyBadge{
     position:absolute;
@@ -611,6 +789,18 @@ const css = `
     border-color:#fecaca;
     background:#fef2f2;
     color:#991b1b;
+  }
+
+  /* ✅ FIX: dropdown options text/background (and force LIGHT UI on iOS/Android) */
+  .mobileCategorySelect{
+    background: #fff !important;
+    color: #111 !important;
+    border: 1px solid #ddd !important;
+    color-scheme: light !important;
+  }
+  .mobileCategorySelect option{
+    background: #fff !important;
+    color: #111 !important;
   }
 
   /* Modal */
@@ -735,5 +925,3 @@ const css = `
     color:#888;
   }
 `;
-
-

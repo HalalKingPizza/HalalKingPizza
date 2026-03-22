@@ -1,7 +1,9 @@
 // src/components/layout/navbar.jsx
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../../context/authContext";
 import { signOut } from "../../services/auth-service";
+import OrderOptionsModal from "../OrderOptionsModal";
 
 const linkStyle = ({ isActive }) => ({
   padding: "8px 12px",
@@ -14,6 +16,7 @@ const linkStyle = ({ isActive }) => ({
 export default function Navbar() {
   const nav = useNavigate();
   const { user, isAdmin, loading } = useAuth();
+  const [orderOpen, setOrderOpen] = useState(false);
 
   async function onLogout() {
     await signOut();
@@ -47,9 +50,7 @@ export default function Navbar() {
         <Link to="/" style={{ textDecoration: "none", color: "#111" }}>
           <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
             <strong style={{ fontSize: 18 }}>Halal King Pizza</strong>
-            <span style={{ fontSize: 12, opacity: 0.7 }}>
-              Fresh • Halal • NYC
-            </span>
+            <span style={{ fontSize: 12, opacity: 0.7 }}>Fresh • Halal • NYC</span>
           </div>
         </Link>
 
@@ -64,26 +65,27 @@ export default function Navbar() {
           </NavLink>
 
           {/* ORDER ONLINE BUTTON */}
-          <a
-        href={import.meta.env.VITE_UBER_EATS_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-        padding: "8px 14px",
-        borderRadius: 999,
-        background: "#d20b0b",
-        color: "white",
-        fontWeight: 800,
-        textDecoration: "none",
-        fontSize: 14,
-        boxShadow: "0 4px 12px rgba(210,11,11,0.35)",
-        animation: "pulseGlow 2s infinite",
-}}
-    >
-        Order Online ›
-    </a>
+          <button
+            type="button"
+            onClick={() => setOrderOpen(true)}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 999,
+              background: "#d20b0b",
+              color: "white",
+              fontWeight: 800,
+              textDecoration: "none",
+              fontSize: 14,
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(210,11,11,0.35)",
+              animation: "pulseGlow 2s infinite",
+            }}
+          >
+            Order Online ›
+          </button>
 
-          {!loading && user && isAdmin && (
+          {/* {!loading && user && isAdmin && (
             <NavLink to="/admin/dashboard" style={linkStyle}>
               Dashboard
             </NavLink>
@@ -106,26 +108,28 @@ export default function Navbar() {
             <NavLink to="/admin" style={linkStyle}>
               Admin
             </NavLink>
-          )}
+          )} */}
         </div>
+
         <style>{`
-@keyframes pulseGlow {
-    0% {
-      box-shadow: 0 4px 12px rgba(210,11,11,0.35);
-      transform: scale(1);
-    }
-    50% {
-      box-shadow: 0 6px 20px rgba(210,11,11,0.55);
-      transform: scale(1.05);
-    }
-    100% {
-      box-shadow: 0 4px 12px rgba(210,11,11,0.35);
-      transform: scale(1);
-    }
-  }
-`}</style>
+          @keyframes pulseGlow {
+            0% {
+              box-shadow: 0 4px 12px rgba(210,11,11,0.35);
+              transform: scale(1);
+            }
+            50% {
+              box-shadow: 0 6px 20px rgba(210,11,11,0.55);
+              transform: scale(1.05);
+            }
+            100% {
+              box-shadow: 0 4px 12px rgba(210,11,11,0.35);
+              transform: scale(1);
+            }
+          }
+        `}</style>
+
+        <OrderOptionsModal open={orderOpen} onClose={() => setOrderOpen(false)} />
       </nav>
     </header>
-    
   );
 }

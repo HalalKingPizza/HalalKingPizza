@@ -51,6 +51,7 @@ import Unauthorized from "../pages/customer/nofound";
 
 import ProtectedRoute from "../components/layout/protectedRoute";
 import Layout from "../components/layout/layout";
+import Footer from "../components/layout/footer";
 
 export default function AppRoutes() {
   return (
@@ -86,7 +87,7 @@ export default function AppRoutes() {
         <Route path="*" element={<Unauthorized />} />
         {/* Or use a real NotFound page if you have one */}
         {/* <Route path="*" element={<NotFound />} /> */}
-
+        
       </Route>
     </Routes>
   );
