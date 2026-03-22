@@ -650,384 +650,207 @@ export default function AdminDashboard() {
       )}
 
       <style>{`
-        .dashboardWrapper{
-          display:flex;
-          min-height:100vh;
-          background:#ffffff;
-          color:#111;
-          font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-        }
+  /* --- GLOBAL DASHBOARD LAYOUT --- */
+  .dashboardWrapper {
+    display: flex;
+    min-height: 100vh;
+    background: #ffffff;
+    color: #111;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
 
-        .sidebar{
-          width:260px;
-          background:#f7f7f8;
-          padding:28px 20px;
-          display:flex;
-          flex-direction:column;
-          justify-content:space-between;
-          border-right:1px solid rgba(0,0,0,0.08);
-        }
+  /* --- SIDEBAR STYLES --- */
+  .sidebar {
+    width: 260px;
+    background: #f7f7f8;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid rgba(0,0,0,0.08);
+  }
 
-        .panelTitle{
-          font-size:12px;
-          opacity:0.65;
-          letter-spacing:1px;
-        }
+  .panelTitle { font-size: 12px; opacity: 0.65; letter-spacing: 1px; }
+  .brand { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
 
-        .brand{
-          font-size:18px;
-          font-weight:700;
-          margin-bottom:20px;
-        }
+  .sideBtn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: #fff;
+    color: #111;
+    cursor: pointer;
+  }
 
-        .sideBtn{
-          width:100%;
-          padding:10px;
-          border-radius:10px;
-          margin-bottom:10px;
-          border:1px solid rgba(0,0,0,0.08);
-          background:#fff;
-          color:#111;
-          cursor:pointer;
-        }
+  .sideBtn.active { background: #111; color: #fff; border-color: #111; }
+  .sideBtn.danger { background: #fff; color: #b42318; border: 1px solid rgba(180,35,24,0.25); }
 
-        .sideBtn.active{
-          background:#111;
-          color:#fff;
-          border-color:#111;
-        }
+  /* --- PROFILE CARD STYLES --- */
+  .profileCard {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+  }
 
-        .sideBtn.danger{
-          background:#fff;
-          color:#b42318;
-          border:1px solid rgba(180,35,24,0.25);
-        }
+  .avatar {
+    width: 44px; height: 44px;
+    border-radius: 999px;
+    background: #111; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; flex: 0 0 auto;
+  }
 
-        .profileCard{
-          display:flex;
-          align-items:center;
-          gap:12px;
-          padding-top:14px;
-          border-top:1px solid rgba(0,0,0,0.08);
-        }
+  .profileText { min-width: 0; }
+  .profileName { font-weight: 700; line-height: 1.1; }
+  .profileRole { font-size: 12px; opacity: 0.65; margin-top: 2px; }
 
-        .avatar{
-          width:44px;
-          height:44px;
-          border-radius:999px;
-          background:#111;
-          color:#fff;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          font-weight:800;
-          flex:0 0 auto;
-        }
+  /* --- MAIN CONTENT LAYOUT --- */
+  .mainContent {
+    flex: 1;
+    padding: 40px 60px;
+    max-width: 1100px;
+  }
 
-        .profileText{ min-width:0; }
-        .profileName{ font-weight:700; line-height:1.1; }
-        .profileRole{ font-size:12px; opacity:0.65; margin-top:2px; }
+  .welcomeBlock h1 { font-size: 48px; margin: 0; letter-spacing: -0.02em; }
+  .welcomeBlock p { opacity: 0.7; margin-top: 8px; }
 
-        .mainContent{
-          flex:1;
-          padding:40px 60px;
-          max-width:1100px;
-        }
+  /* --- INVENTORY CARD & HEADER (FIXES image_2.png) --- */
+  .inventoryCard {
+    margin-top: 30px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    box-sizing: border-box; /* Key overflow fix */
+  }
 
-        .welcomeBlock h1{
-          font-size:48px;
-          margin:0;
-          letter-spacing:-0.02em;
-        }
+  .inventoryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    gap: 12px;
+    flex-wrap: wrap; /* Key fix: allows header elements to wrap on mobile */
+  }
 
-        .welcomeBlock p{
-          opacity:0.7;
-          margin-top:8px;
-        }
+  .inventoryHeaderRight { 
+    display: flex; 
+    gap: 10px; 
+    align-items: center; 
+    flex-wrap: wrap; /* Allows select and New Item button to flow on mobile */
+  }
 
-        .inventoryCard{
-          margin-top:30px;
-          background:#ffffff;
-          border-radius:16px;
-          padding:20px;
-          max-width:980px;
-          border:1px solid rgba(0,0,0,0.08);
-          box-shadow:0 10px 30px rgba(0,0,0,0.06);
-        }
+  .filterSelect, .newItemBtn {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.10);
+    cursor: pointer;
+    white-space: nowrap; /* Prevents long names from breaking button text */
+  }
 
-        .inventoryHeader{
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          margin-bottom:18px;
-          gap:12px;
-        }
+  .newItemBtn { background: #111; color: #fff; font-weight: 700; }
 
-        .inventoryHeader h2{ margin:0; }
-        .inventoryHeader span{ opacity:0.65; font-size:14px; }
+  /* --- INVENTORY LIST & ROW STYLES (DESKTOP DEFAULT) --- */
+  .inventoryRow {
+    display: grid;
+    grid-template-columns: 70px minmax(220px, 1fr) 120px 130px minmax(320px, 1fr);
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    font-size: 14px;
+  }
 
-        .inventoryHeaderRight{
-          display:flex;
-          gap:10px;
-          align-items:center;
-        }
+  .itemImage { width: 60px; height: 60px; object-fit: cover; border-radius: 10px; background: #eee; border: 1px solid rgba(0,0,0,0.08); }
+  .itemTitle { font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
+  .itemMeta { margin-top: 6px; }
+  .itemCategory { font-size: 12px; opacity: 0.65; font-weight: 600; }
+  .itemPrice { font-weight: 800; white-space: nowrap; }
+  .itemStatus { opacity: 0.8; font-weight: 700; white-space: nowrap; }
 
-        .filterSelect{
-          padding:8px 10px;
-          border-radius:10px;
-          border:1px solid rgba(0,0,0,0.10);
-          background:#fff;
-          color:#111;
-          cursor:pointer;
-        }
+  .itemActions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
 
-        .newItemBtn{
-          padding:8px 14px;
-          border-radius:10px;
-          border:1px solid rgba(0,0,0,0.08);
-          background:#111;
-          color:#fff;
-          cursor:pointer;
-          font-weight:700;
-        }
+  .reorderBox { display: flex; gap: 6px; align-items: center; }
+  .reorderBtn { width: 34px; height: 34px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.10); background: #fff; cursor: pointer; font-weight: 900; }
+  .editBtn, .toggleBtn, .deleteBtn {
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 700;
+    white-space: nowrap;
+    box-sizing: border-box; /* Ensures buttons don't push out */
+  }
 
-        /* ✅ FIX: columns are stable + price never overlaps */
-        .inventoryRow{
-          display:grid;
-          grid-template-columns:70px minmax(220px, 1fr) 120px 130px minmax(320px, 1fr);
-          align-items:center;
-          gap:14px;
-          padding:12px 0;
-          border-top:1px solid rgba(0,0,0,0.08);
-          font-size:14px;
-        }
+  .editBtn { background: #f4f4f5; color: #111; border: 1px solid rgba(0,0,0,0.12); }
+  .deleteBtn { background: #fff; color: #b42318; border: 1px solid rgba(180,35,24,0.35); }
 
-        .itemImage{
-          width:60px;
-          height:60px;
-          object-fit:cover;
-          border-radius:10px;
-          background:#eee;
-          border:1px solid rgba(0,0,0,0.08);
-        }
+  /* --- MODAL STYLES (PRESERVED) --- */
+  .modalOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+  .modal { width: 520px; max-width: 100%; background: #fff; border-radius: 16px; padding: 22px; border: 1px solid rgba(0,0,0,0.10); box-shadow: 0 20px 60px rgba(0,0,0,0.20); }
+  .modalHeader { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .modalHeader h3 { margin: 0; font-size: 22px; }
+  .closeBtn { padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.10); background: #f4f4f5; color: #111; cursor: pointer; font-weight: 700; }
+  .modalBody { display: grid; gap: 10px; }
+  .field { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.14); background: #fff; color: #111; outline: none; }
+  .field:focus { border-color: #111; }
+  .field.textarea { resize: vertical; }
+  .field.file { padding: 10px; }
+  .previewImg { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(0,0,0,0.10); }
+  .checkboxRow { display: flex; gap: 8px; align-items: center; font-weight: 700; }
+  .createBtn { margin-top: 8px; padding: 11px 12px; border-radius: 10px; border: none; background: #111; color: white; cursor: pointer; font-weight: 800; }
 
-        .itemName{
-          min-width:0;
-        }
+  /* --- MOBILE RESPONSIVENESS (Max-width 940px) --- */
+  @media (max-width: 940px) {
+    .mainContent { padding: 28px 18px; }
+    .dashboardWrapper { flex-direction: column; }
+    .sidebar { width: auto; border-right: none; border-bottom: 1px solid #eee; }
 
-        .itemTitle{
-          font-weight:800;
-          line-height:1.15;
-          overflow-wrap:anywhere;
-        }
+    /* Fix for inventory Header and + New Item button */
+    .inventoryHeaderRight { width: 100%; justify-content: space-between; }
+    .newItemBtn, .filterSelect { flex: 0 1 auto; text-align: center; }
+    .filterSelect { width: 60%; } /* Give the select more space than the button */
 
-        .itemMeta{
-          margin-top:6px;
-        }
+    .inventoryRow {
+      grid-template-columns: 70px 1fr auto;
+      grid-template-areas:
+        "img name price"
+        "img status status"
+        "actions actions actions";
+      align-items: start;
+      gap: 10px;
+    }
 
-        .itemCategory{
-          font-size:12px;
-          opacity:0.65;
-          font-weight:600;
-        }
+    .itemImage { grid-area: img; }
+    .itemName { grid-area: name; }
+    .itemPrice { grid-area: price; justify-self: end; }
+    .itemStatus { grid-area: status; font-size: 12px; margin-top: -5px; }
+    
+    .itemActions {
+      grid-area: actions;
+      justify-content: flex-start;
+      padding-top: 8px;
+    }
 
-        .itemPrice{
-          font-weight:800;
-          white-space:nowrap;
-          text-align:left;
-        }
-
-        .itemStatus{
-          opacity:0.8;
-          font-weight:700;
-          white-space:nowrap;
-        }
-
-        .itemActions{
-          display:flex;
-          gap:8px;
-          justify-content:flex-end;
-          flex-wrap:wrap;
-          min-width:0;
-        }
-
-        .reorderBox{
-          display:flex;
-          gap:6px;
-          align-items:center;
-        }
-
-        .reorderBtn{
-          width:34px;
-          height:34px;
-          border-radius:10px;
-          border:1px solid rgba(0,0,0,0.10);
-          background:#fff;
-          cursor:pointer;
-          font-weight:900;
-          line-height:1;
-        }
-
-        .editBtn{
-          padding:6px 10px;
-          border-radius:10px;
-          border:1px solid rgba(0,0,0,0.12);
-          background:#f4f4f5;
-          color:#111;
-          font-size:13px;
-          cursor:pointer;
-          font-weight:700;
-          white-space:nowrap;
-        }
-
-        .toggleBtn{
-          padding:6px 10px;
-          border-radius:10px;
-          border:1px solid rgba(22,163,74,0.25);
-          background:#16a34a;
-          color:white;
-          font-size:13px;
-          cursor:pointer;
-          font-weight:800;
-          white-space:nowrap;
-        }
-
-        .deleteBtn{
-          padding:6px 10px;
-          border-radius:10px;
-          border:1px solid rgba(180,35,24,0.35);
-          background:#fff;
-          color:#b42318;
-          font-size:13px;
-          cursor:pointer;
-          font-weight:800;
-          white-space:nowrap;
-        }
-
-        .emptyState{
-          padding:14px 0 2px;
-          color:#444;
-          font-size:14px;
-        }
-
-        .modalOverlay{
-          position:fixed;
-          inset:0;
-          background:rgba(0,0,0,0.35);
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          padding:16px;
-          z-index:50;
-        }
-
-        .modal{
-          width:520px;
-          max-width:100%;
-          background:#fff;
-          border-radius:16px;
-          padding:22px;
-          border:1px solid rgba(0,0,0,0.10);
-          box-shadow:0 20px 60px rgba(0,0,0,0.20);
-        }
-
-        .modalHeader{
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          gap:12px;
-          margin-bottom:16px;
-        }
-
-        .modalHeader h3{
-          margin:0;
-          font-size:22px;
-        }
-
-        .closeBtn{
-          padding:8px 12px;
-          border-radius:10px;
-          border:1px solid rgba(0,0,0,0.10);
-          background:#f4f4f5;
-          color:#111;
-          cursor:pointer;
-          font-weight:700;
-        }
-
-        .modalBody{
-          display:grid;
-          gap:10px;
-        }
-
-        .field{
-          width:100%;
-          box-sizing:border-box;
-          padding:10px 12px;
-          border-radius:10px;
-          border:1px solid rgba(0,0,0,0.14);
-          background:#fff;
-          color:#111;
-          outline:none;
-        }
-
-        .field:focus{ border-color:#111; }
-        .field.textarea{ resize:vertical; }
-        .field.file{ padding:10px; }
-
-        .previewImg{
-          width:100%;
-          height:160px;
-          object-fit:cover;
-          border-radius:12px;
-          border:1px solid rgba(0,0,0,0.10);
-        }
-
-        .checkboxRow{
-          display:flex;
-          gap:8px;
-          align-items:center;
-          font-weight:700;
-        }
-
-        .createBtn{
-          margin-top:8px;
-          padding:11px 12px;
-          border-radius:10px;
-          border:none;
-          background:#111;
-          color:white;
-          cursor:pointer;
-          font-weight:800;
-        }
-
-        @media (max-width: 980px){
-          .mainContent{ padding:28px 18px; }
-          .dashboardWrapper{ flex-direction:column; }
-          .sidebar{ width:auto; }
-
-          .inventoryRow{
-            grid-template-columns:70px 1fr auto;
-            grid-template-areas:
-              "img name price"
-              "img status actions";
-            align-items:start;
-          }
-
-          .itemImage{ grid-area: img; }
-          .itemName{ grid-area: name; }
-          .itemPrice{
-            grid-area: price;
-            justify-self:end;
-            align-self:start;
-            white-space:nowrap;
-          }
-          .itemStatus{ grid-area: status; }
-          .itemActions{
-            grid-area: actions;
-            justify-content:flex-start;
-          }
-        }
-      `}</style>
+    /* Stack buttons that don't fit */
+    .editBtn, .deleteBtn, .toggleBtn {
+      flex: 1 1 auto;
+      text-align: center;
+      min-width: 120px;
+    }
+  }
+`}</style>
     </div>
   );
 }
